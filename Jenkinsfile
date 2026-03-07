@@ -7,11 +7,7 @@ pipeline {
 
     stages {
 
-        stage('Checkout Code') {
-            steps {
-                git 'https://github.com/Sriram-Surat/aws-devops-cicd-project.git'
-            }
-        }
+
 
         stage('Terraform Init') {
             steps {
