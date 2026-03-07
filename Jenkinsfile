@@ -1,7 +1,6 @@
 pipeline {
 agent any
 
-```
 environment {
     DOCKER_IMAGE = "suratdochub/project-2026"
 }
@@ -35,8 +34,5 @@ stages {
             bat 'docker push %DOCKER_IMAGE%'
         }
     }
-
-}
-```
-
+  }
 }
