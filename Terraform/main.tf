@@ -40,7 +40,7 @@ resource "aws_route" "internet_access" {
 }
 
 # Subnet associations
-resource "aws_route_table_association" "B" {
+resource "aws_route_table_association" "A" {
   subnet_id      = aws_subnet.subnetA.id
   route_table_id = aws_route_table.rt.id
 }
