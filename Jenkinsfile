@@ -22,6 +22,13 @@ pipeline {
                 }
             }
         }
+        stage('Terraform Destroy') {
+            steps {
+                dir('terraform') {
+                    bat 'terraform destroy -auto-approve'
+                }
+            }
+        }
 
         stage('Build Docker Image') {
             steps {
