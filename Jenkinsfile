@@ -25,13 +25,13 @@ stages {
 
     stage('Build Docker Image') {
         steps {
-            sh 'docker build -t $DOCKER_IMAGE ./app'
+            bat 'docker build -t %DOCKER_IMAGE% .\\app'
         }
     }
 
     stage('Push Docker Image') {
         steps {
-            sh 'docker push $DOCKER_IMAGE'
+            bat 'docker push %DOCKER_IMAGE%'
         }
     }
   }
