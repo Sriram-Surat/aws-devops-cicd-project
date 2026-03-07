@@ -22,16 +22,10 @@ pipeline {
                 }
             }
         }
-        stage('Terraform Destroy') {
-            steps {
-                dir('terraform') {
-                bat 'terraform destroy -auto-approve'
-                }
-            }
-        }
+        
         stage('Build Docker Image') {
             steps {
-                bat 'docker build -t %DOCKER_IMAGE% ./Application'
+                sh 'docker build -t $DOCKER_IMAGE .'
             }
         }
 
@@ -42,14 +36,14 @@ pipeline {
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
-                    bat 'echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin'
+                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
                 }
             }
         }
 
         stage('Push Docker Image') {
             steps {
-                bat 'docker push %DOCKER_IMAGE%'
+                sh 'docker push $DOCKER_IMAGE'
             }
         }
 
