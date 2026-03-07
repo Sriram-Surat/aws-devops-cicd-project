@@ -28,7 +28,13 @@ pipeline {
                 bat 'docker build -t %DOCKER_IMAGE% .'
             }
         }
-
+        stage('Terraform Destroy') {
+            steps {
+                dir('terraform') {
+                    bat 'terraform destroy -auto-approve'
+                }
+            }
+        }
         stage('Docker Login') {
             steps {
                 withCredentials([usernamePassword(
