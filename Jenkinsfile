@@ -2,7 +2,7 @@ pipeline {
 agent any
 
 environment {
-    DOCKER_IMAGE = "suratdochub/project-2026"
+    DOCKER_IMAGE = "suratdochub/project-2026/aws-devops-cicd-project"
 }
 
 stages {
@@ -25,7 +25,7 @@ stages {
 
     stage('Build Docker Image') {
         steps {
-            bat 'docker build -t %DOCKER_IMAGE% .\\app'
+            bat 'docker build -t %DOCKER_IMAGE% .\\Application'
         }
     }
 
