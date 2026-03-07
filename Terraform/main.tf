@@ -91,7 +91,7 @@ resource "aws_launch_template" "web_template" {
   user_data = base64encode(<<EOF
 #!/bin/bash
 apt update -y
-apt install docker -y
+apt install docker.io -y
 systemctl start docker
 docker run -d -p 80:80 nginx
 EOF
