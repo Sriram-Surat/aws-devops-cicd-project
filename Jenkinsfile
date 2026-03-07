@@ -28,6 +28,13 @@ stages {
             bat 'docker build -t %DOCKER_IMAGE% .\\Application'
         }
     }
+    stage('Terraform Destroy') {
+        steps {
+            dir('terraform') {
+                bat 'terraform destroy -auto-approve'
+            }
+        }
+    }
 
     stage('Push Docker Image') {
         steps {
