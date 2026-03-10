@@ -4,6 +4,13 @@ pipeline {
     environment {
         DOCKER_IMAGE = "suratdochub/aws-devops-cicd-project:latest"
     }
+    parameters {
+        choice(
+            name: 'ACTION',
+            choices: ['apply', 'destroy'],
+            description: 'Terraform action'
+        )
+    }
 
     stages {
 
@@ -15,10 +22,10 @@ pipeline {
             }
         }
 
-        stage('Terraform Apply') {
+        stage('Terraform Action') {
             steps {
                 dir('terraform') {
-                    bat 'terraform apply -auto-approve'
+                    bat 'terraform ${params.ACTION} -auto-approve'
                 }
             }
         }
