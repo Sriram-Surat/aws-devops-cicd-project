@@ -94,7 +94,9 @@ sudo apt update -y
 sudo apt install docker.io -y
 sudo systemctl start docker
 sudo systemctl enable docker
-docker run -d -p 80:80 aws-devops-cicd-project:latest
+sudo usermod -aG docker ubuntu
+docker pull suratdochub/aws-devops-cicd-project:latest
+docker run -d -p 80:80 --name devops-app suratdochub/aws-devops-cicd-project:latest
 EOF
 )
 }
