@@ -12,16 +12,17 @@ This project demonstrates a complete DevOps automation workflow using AWS and mo
 
 ## Architecture
 
-Developer pushes code → GitHub → Jenkins Pipeline → Terraform Infrastructure → Docker Build  → Deploy to AWS Auto Scaling Group behind ALB.
+Developer pushes code → GitHub → Jenkins Pipeline → Docker Build  → Docker push to Dockerhub → Terraform Infrastructure → Deploy to AWS Auto Scaling Group behind ALB.
 
 ## Deployment Flow
 
 1. Jenkins pulls code from GitHub
-2. Terraform creates AWS infrastructure
+2. Docker image is built
 3. Image pushed to DockerHub
-4. Docker image is built
-5. Application deployed to EC2 instances
-6. Users access application through Load Balancer
+4. Terraform creates AWS infrastructure
+5. Docker Image pulled from Dockerhub in the created Infra
+6. Application deployed to EC2 instances
+7. Users access application through Load Balancer
 
 ## Commands
 
