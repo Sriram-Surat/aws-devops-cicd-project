@@ -14,21 +14,6 @@ pipeline {
 
     stages {
 
-        stage('Terraform Init') {
-            steps {
-                dir('terraform') {
-                    bat 'terraform init'
-                }
-            }
-        }
-
-        stage('Terraform Action') {
-            steps {
-                dir('terraform') {
-                    bat 'terraform %ACTION% -auto-approve'
-                }
-            }
-        }
 
         stage('Build Docker Image') {
             steps {
@@ -50,6 +35,22 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 bat 'docker push %DOCKER_IMAGE%'
+            }
+        }
+        
+        stage('Terraform Init') {
+            steps {
+                dir('terraform') {
+                    bat 'terraform init'
+                }
+            }
+        }
+
+        stage('Terraform Action') {
+            steps {
+                dir('terraform') {
+                    bat 'terraform %ACTION% -auto-approve'
+                }
             }
         }
 
