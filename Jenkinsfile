@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "project-2026/aws-devops-cicd-project"
+        DOCKER_IMAGE = "suratdochub/aws-devops-cicd-project:latest"
     }
 
     stages {
