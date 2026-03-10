@@ -25,7 +25,7 @@ pipeline {
         stage('Terraform Action') {
             steps {
                 dir('terraform') {
-                    bat 'terraform ${params.ACTION} -auto-approve'
+                    bat 'terraform %ACTION% -auto-approve'
                 }
             }
         }
