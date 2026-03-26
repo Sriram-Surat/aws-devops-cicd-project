@@ -2,8 +2,9 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "suratdochub/aws-devops-cicd-project:latest"
+        DOCKER_IMAGE = "suratdochub/aws-devops-cicd-project:${BUILD_NUMBER}"
     }
+
     parameters {
         choice(
             name: 'ACTION',
@@ -14,12 +15,31 @@ pipeline {
 
     stages {
 
-
         stage('Build Docker Image') {
             steps {
+                echo 'Building Docker image...'
                 bat 'docker build -t %DOCKER_IMAGE% .'
             }
         }
+
+        stage('Test') {
+            steps {
+                echo 'Running container health check...'
+                bat '''
+                docker run -d -p 8081:8080 %DOCKER_IMAGE%
+
+                echo Waiting for application to start...
+                timeout /t 10
+
+                echo Testing application endpoint...
+                curl -f http://localhost:8081 || exit 1
+
+                echo Stopping container...
+                for /f "tokens=*" %%i in ('docker ps -q') do docker stop %%i
+                '''
+            }
+        }
+
         stage('Docker Login') {
             steps {
                 withCredentials([usernamePassword(
@@ -27,32 +47,90 @@ pipeline {
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
-                    bat 'echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin'
+                    bat '''
+                    echo Logging into DockerHub...
+                    echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
+                    '''
                 }
             }
         }
 
         stage('Push Docker Image') {
             steps {
-                bat 'docker push %DOCKER_IMAGE%'
+                echo 'Pushing Docker image...'
+                retry(2) {
+                    bat 'docker push %DOCKER_IMAGE%'
+                }
             }
         }
-        
+
         stage('Terraform Init') {
             steps {
                 dir('terraform') {
+                    echo 'Initializing Terraform...'
                     bat 'terraform init'
                 }
             }
         }
 
-        stage('Terraform Action') {
+        stage('Terraform Apply') {
+            when {
+                expression { params.ACTION == 'apply' }
+            }
             steps {
                 dir('terraform') {
-                    bat 'terraform %ACTION% -auto-approve'
+                    echo 'Applying Terraform...'
+                    bat 'terraform apply -auto-approve'
                 }
             }
         }
 
+        stage('Terraform Destroy') {
+            when {
+                expression { params.ACTION == 'destroy' }
+            }
+            steps {
+                input message: 'Are you sure you want to destroy infrastructure?'
+                dir('terraform') {
+                    echo 'Destroying Terraform infrastructure...'
+                    bat 'terraform destroy -auto-approve'
+                }
+            }
+        }
+
+        stage('Post-Deploy Health Check') {
+            when {
+                expression { params.ACTION == 'apply' }
+            }
+            steps {
+                dir('terraform') {
+                    echo 'Fetching ALB DNS and validating app...'
+                    bat '''
+                    for /f "delims=" %%i in ('terraform output -raw alb_dns_name') do set ALB=%%i
+                    echo ALB DNS: %ALB%
+
+                    echo Waiting for application to be ready...
+                    timeout /t 30
+
+                    curl -f http://%ALB% || exit 1
+                    '''
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Cleaning up Docker containers...'
+            bat 'for /f "tokens=*" %%i in (\'docker ps -aq\') do docker rm -f %%i'
+        }
+
+        success {
+            echo 'Pipeline executed successfully!'
+        }
+
+        failure {
+            echo 'Pipeline failed. Check logs.'
+        }
     }
 }
