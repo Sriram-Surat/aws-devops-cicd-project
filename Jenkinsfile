@@ -26,7 +26,7 @@ pipeline {
             steps {
                 echo 'Running container health check...'
                 bat '''
-                docker run -d -p 8081:8080 %DOCKER_IMAGE%
+                docker run -d -p 8081:80 %DOCKER_IMAGE%
 
                 echo Waiting for application to start...
                 timeout /t 10
