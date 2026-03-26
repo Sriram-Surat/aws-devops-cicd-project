@@ -23,22 +23,24 @@ pipeline {
         }
 
         stage('Test') {
-            steps {
-                echo 'Running container health check...'
-                bat '''
-                docker run -d -p 8081:80 %DOCKER_IMAGE%
+    steps {
+        echo 'Running container health check...'
+        bat '''
+        echo Starting container...
+        for /f "tokens=*" %%i in ('docker run -d -p 8081:80 %DOCKER_IMAGE%') do set CONTAINER_ID=%%i
 
-                echo Waiting for application to start...
-                timeout /t 10
+        echo Waiting for application to start...
+        ping 127.0.0.1 -n 10 > nul
 
-                echo Testing application endpoint...
-                curl -f http://localhost:8081 || exit 1
+        echo Testing application endpoint...
+        curl -f http://localhost:8081 || exit 1
 
-                echo Stopping container...
-                for /f "tokens=*" %%i in ('docker ps -q') do docker stop %%i
-                '''
-            }
-        }
+        echo Stopping test container...
+        docker stop %CONTAINER_ID%
+        docker rm %CONTAINER_ID%
+        '''
+    }
+}
 
         stage('Docker Login') {
             steps {
@@ -110,7 +112,7 @@ pipeline {
                     echo ALB DNS: %ALB%
 
                     echo Waiting for application to be ready...
-                    timeout /t 30
+                    ping 127.0.0.1 -n 30 > nul
 
                     curl -f http://%ALB% || exit 1
                     '''
