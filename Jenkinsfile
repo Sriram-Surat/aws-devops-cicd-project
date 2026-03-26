@@ -124,7 +124,10 @@ pipeline {
     post {
         always {
             echo 'Cleaning up Docker containers...'
-            bat 'for /f "tokens=*" %%i in (\'docker ps -aq\') do docker rm -f %%i'
+        bat '''
+        for /f "tokens=*" %%i in ('docker ps -aq') do docker rm -f %%i
+        exit /b 0
+        '''
         }
 
         success {
